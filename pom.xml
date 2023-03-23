@@ -86,14 +86,11 @@
     </dependencyManagement>
 
     <modules>
-        <module>integrated-storage</module>
-        <module>integrated-account</module>
-        <module>integrated-order</module>
-        <module>integrated-gateway</module>
-        <module>integrated-praise-provider</module>
-        <module>integrated-praise-consumer</module>
-        <module>integrated-common</module>
-		<module>integrated-frontend</module>
+        <module>business-service</module>
+        <module>order-service</module>
+        <module>storage-service</module>
+        <module>account-service</module>
+        <module>seata-server</module>
 	</modules>
 
 

@@ -6,116 +6,90 @@
     <groupId>com.alibaba.cloud</groupId>
     <artifactId>spring-cloud-alibaba-examples</artifactId>
     <version>2022.0.0.0-RC2</version>
-    <relativePath>../../pom.xml</relativePath>
   </parent>
   <groupId>com.alibaba.cloud</groupId>
   <artifactId>order-service</artifactId>
   <version>2022.0.0.0-RC2</version>
   <name>Spring Cloud Starter Alibaba Seata Example - Order Service</name>
-  <description>Example showing how to use features of Spring Cloud Alibaba</description>
-  <url>https://github.com/alibaba/spring-cloud-alibaba/spring-cloud-alibaba-examples/seata-example/order-service</url>
-  <organization>
-    <name>Pivotal Software, Inc.</name>
-    <url>https://www.spring.io</url>
-  </organization>
-  <licenses>
-    <license>
-      <name>Apache License, Version 2.0</name>
-      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
-  <developers>
-    <developer>
-      <name>xiaojing</name>
-      <email>flystar32@163.com</email>
-    </developer>
-    <developer>
-      <name>Jim Fang</name>
-      <email>fangjian0423@gmail.com</email>
-      <url>https://github.com/fangjian0423</url>
-      <organization>Alibaba</organization>
-    </developer>
-    <developer>
-      <name>xiaolongzuo</name>
-      <email>150349407@qq.com</email>
-    </developer>
-    <developer>
-      <name>hengyunabc</name>
-      <email>hengyunabc@gmail.com</email>
-    </developer>
-    <developer>
-      <id>mercyblitz</id>
-      <name>Mercy Ma</name>
-      <email>mercyblitz@gmail.com</email>
-      <url>https://github.com/mercyblitz</url>
-      <organization>Alibaba</organization>
-    </developer>
-    <developer>
-      <name>yunzheng</name>
-      <email>yunzheng1228@gmail.com</email>
-    </developer>
-    <developer>
-      <id>theonefx</id>
-      <name>theonefx</name>
-      <email>chenxilzx1@gmail.com</email>
-      <url>https://github.com/theonefx</url>
-      <organization>Alibaba</organization>
-    </developer>
-  </developers>
-  <scm>
-    <connection>scm:git:git://github.com/alibaba/spring-cloud-alibaba.git/spring-cloud-alibaba-examples/seata-example/order-service</connection>
-    <developerConnection>scm:git:ssh://git@github.com/alibaba/spring-cloud-alibaba.git/spring-cloud-alibaba-examples/seata-example/order-service</developerConnection>
-    <url>https://github.com/alibaba/spring-cloud-alibaba/spring-cloud-alibaba-examples/seata-example/order-service</url>
-  </scm>
   <dependencies>
     <dependency>
       <groupId>com.alibaba.cloud</groupId>
       <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
-      <version>2022.0.0.0-RC2</version>
-      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>com.alibaba.cloud</groupId>
       <artifactId>spring-cloud-starter-alibaba-seata</artifactId>
-      <version>2022.0.0.0-RC2</version>
-      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
-      <version>3.0.2</version>
-      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-actuator</artifactId>
-      <version>3.0.2</version>
-      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-jdbc</artifactId>
-      <version>3.0.2</version>
-      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
-      <version>8.0.32</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>com.google.protobuf</groupId>
-          <artifactId>protobuf-java</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
       <version>1.2.17</version>
-      <scope>compile</scope>
     </dependency>
   </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.graalvm.buildtools</groupId>
+        <artifactId>native-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>add-reachability-metadata</id>
+            <goals>
+              <goal>add-reachability-metadata</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <classesDirectory>${project.build.outputDirectory}</classesDirectory>
+          <metadataRepository>
+            <enabled>true</enabled>
+          </metadataRepository>
+          <requiredVersion>22.3</requiredVersion>
+          <buildArgs>--initialize-at-build-time=ch.qos.logback.classic.Logger
+                        --initialize-at-build-time=ch.qos.logback.core.status.InfoStatus
+                        --initialize-at-build-time=ch.qos.logback.core.status.StatusBase
+                        --initialize-at-build-time=org.slf4j.LoggerFactory
+                        --initialize-at-build-time=ch.qos.logback.core.CoreConstants
+                        --initialize-at-build-time=org.slf4j.MDC
+                        --initialize-at-build-time=ch.qos.logback.classic.Level
+                        --initialize-at-build-time=ch.qos.logback.core.util.Loader
+                        --initialize-at-build-time=ch.qos.logback.core.util.StatusPrinter
+                        --initialize-at-run-time=io.netty.channel.epoll.Epoll
+                        --initialize-at-run-time=io.netty.channel.epoll.Native
+                        --initialize-at-run-time=io.netty.channel.epoll.EpollEventLoop
+                        --initialize-at-run-time=io.netty.channel.epoll.EpollEventArray
+                        --initialize-at-run-time=io.netty.channel.DefaultFileRegion
+                        --initialize-at-run-time=io.netty.channel.kqueue.KQueueEventArray
+                        --initialize-at-run-time=io.netty.channel.kqueue.KQueueEventLoop
+                        --initialize-at-run-time=io.netty.channel.kqueue.Native
+                        --initialize-at-run-time=io.netty.channel.unix.Errors
+                        --initialize-at-run-time=io.netty.channel.unix.IovArray
+                        --initialize-at-run-time=io.netty.channel.unix.Limits
+                        --initialize-at-run-time=io.netty.util.internal.logging.Log4JLogger
+                        --initialize-at-run-time=io.netty.channel.unix.Socket
+                        --initialize-at-run-time=io.netty.channel.ChannelHandlerMask</buildArgs>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
 </project>

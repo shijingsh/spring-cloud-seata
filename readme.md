@@ -1,45 +1,42 @@
-[English](README.md) | [中文](README-zh.md)
-
 # Seata Example
 
-## Project Instruction
+## 项目说明
 
 
-This project demonstrates how to use Seata starter to complete the distributed transaction access of spring cloud applications.
+本项目演示如何使用 Seata Starter 完成 Spring Cloud 应用的分布式事务接入。
 
-[Seata](https://github.com/seata/seata) It is Alibaba open source distributed transaction middleware, which solves the distributed transaction problem in the microservice scenario in an efficient and non-invasive way.
+[Seata](https://github.com/seata/seata) 是 阿里巴巴 开源的 分布式事务中间件，以 高效 并且对业务 0 侵入 的方式，解决 微服务 场景下面临的分布式事务问题。
 
 
 
-## Preparations
+## 准备工作
 
-Before running this example, you need to complete the following steps:
+在运行此示例之前，你需要先完成如下几步准备工作：
 
-1. Configure the database
+1. 配置数据库
 
-2. Create UNDO_ LOG table
+2. 创建 UNDO_LOG 表
 
-3. Create the database tables needed by the business in the example
+3. 创建 示例中 业务所需要的数据库表
 
-4. Create the Nacos configuration in the example, data id: `seata.properties` , Group: `SEATA_ Group` (Seata 1.5.1 default group) configuration import [nacos configuration](https://github.com/seata/seata/blob/1.5.0/script/config-center/config.txt)
-  At seata Add the following [transaction group configuration](https://seata.io/zh-cn/docs/user/configurations.html) required in the example to properties
+4. 创建示例中Nacos data-id: `seata.properties` , Group: `SEATA_GROUP`(seata 1.5.1 默认分组) ,导入 [Nacos 配置](https://github.com/seata/seata/blob/1.5.0/script/config-center/config.txt)
+    在seata.properties中增加示例中需要的如下[事务群组配置](https://seata.io/zh-cn/docs/user/configurations.html)
 ```
    service.vgroupMapping.order-service-tx-group=default
    service.vgroupMapping.account-service-tx-group=default
    service.vgroupMapping.business-service-tx-group=default
    service.vgroupMapping.storage-service-tx-group=default
-``` 
-5. Start Seata Server
-   Since 1.5.1, Seata supports Seata console local access console address: http://127.0.0.1:7091
-   Through the Seata console, you can observe the executing transaction information and global lock information, and delete the relevant information when the transaction is completed.
+```   
+5. 启动 Seata Server
+  Seata 1.5.1 开始支持seata控制台 本地访问控制台地址：http://127.0.0.1:7091
+  通过seata控制台可以观察正在执行的事务信息和全局锁信息,事务执行结束即删除相关信息。
+### 配置数据库
 
-### Configuration database
+首先，你需要有一个支持 InnoDB 引擎的 MySQL 数据库。
 
-First, you need a MySQL database that supports the InnoDB engine.
+**注意**： 实际上，Seata 支持不同的应用使用完全不相干的数据库，但是这里为了简单地演示一个原理，所以我们选择了只使用一个数据库。
 
-**NOTE**: In fact, Seata supports different applications that use totally unrelated databases, but here we chose to use only one database for a simple demonstration of one principle.
-
-Will application in the resources directory of the `account-server`, `order-service`, `storage-service` three applications. The following configuration in the yml file is modified to the actual configuration in your running environment.
+将 `account-server`、`order-service`、`storage-service` 这三个应用中的 resources 目录下的 `application.yml` 文件中的如下配置修改成你运行环境中的实际配置。
 
 ```
 base:
@@ -50,15 +47,14 @@ base:
       port: your mysql server listening port
       username: your mysql server username
       password: your mysql server password
-
 ```
 
-### Create undo_ Log table
+### 创建 undo_log 表
 
-Seata AT Mode Need to use undo_ Log table.
+Seata AT 模式 需要使用到 undo_log 表。
 
 ``` $sql
--- Notice here that 0.3.0+ increases the unique index ux_ Undo_ Log
+-- 注意此处0.3.0+ 增加唯一索引 ux_undo_log
 CREATE TABLE `undo_log` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `branch_id` bigint(20) NOT NULL,
@@ -73,8 +69,8 @@ CREATE TABLE `undo_log` (
   UNIQUE KEY `ux_undo_log` (`xid`,`branch_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 ```
-### Database tables needed to import seata-server DB schema
-Initialize in database [global_table、branch_table、lock_table、distributed_lock](https://github.com/seata/seata/blob/1.5.0/script/server/db/mysql.sql)
+### 导入 seata-server db模式所需要的数据库表
+在数据库中初始化[global_table、branch_table、lock_table、distributed_lock](https://github.com/seata/seata/blob/1.5.0/script/server/db/mysql.sql)
 ```$sql
 -- -------------------------------- The script used when storeMode is 'db' --------------------------------
 -- the table to store GlobalSession data
@@ -150,7 +146,7 @@ INSERT INTO `distributed_lock` (lock_key, lock_value, expire) VALUES ('RetryComm
 INSERT INTO `distributed_lock` (lock_key, lock_value, expire) VALUES ('RetryRollbacking', ' ', 0);
 INSERT INTO `distributed_lock` (lock_key, lock_value, expire) VALUES ('TxTimeoutCheck', ' ', 0);
 ```
-### Create the database tables needed by the business in the example
+### 创建 示例中 业务所需要的数据库表
 
 ```$sql
 DROP TABLE IF EXISTS `storage_tbl`;
@@ -183,35 +179,36 @@ CREATE TABLE `account_tbl` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 ```
 
-### Start Seata Server This describes SpringBoot and download server in two ways
+### 启动 Seata Server 这里介绍SpringBoot 和下载server两种方式
 
-1.Run seata-server to start Seata server
-The example uses Nacos as the configuration and the registry storage mode is: DB uses MySQL
+1.运行 seata-server 启动Seata server
+示例中采用nacos 作为配置，注册中心 存储模式为：db 采用mysql 
 
-2. Or click on this page GitHub, the official website of [Seata](https://github.com/seata/seata/releases ), download the latest version of Sata Server.
-Enter the bin directory after unzipping and execute the following command to start with all the startup parameters optional.
+2.或点击这个页面 [Seata 官网Github](https://github.com/seata/seata/releases)，下载最新版本的 Seata Server 端.
+进入解压之后的 bin 目录，执行如下命令来启动, 所有启动参数为可选项。
 
 ```$shell
 sh seata-server.sh -p $LISTEN_PORT -m $MODE(file or db) -h $HOST -e $ENV
 ```
--p seata-server listening service port number
--m storage mode, optional values: file, db. File is for single-point mode and DB is for HA mode. When using DB storage mode, you need to modify the database configuration of the store configuration node in the configuration and initialize [global_table, branch_table, and
-Lock_ Table](https://github.com/seata/seata/blob/1.5.0/script/server/db/mysql.sql )
--h is used to solve seata-server and business side cross-network problems. The configured host value is displayed directly to the registry service available address host, which needs to be configured as public network IP or NATIP when cross-network. If both are in the same local area network, no configuration is required 
--e for multi-environment configuration center isolation   
-Start Seata Server with the following command
+-p seata-server 监听服务端口号   
+-m 存储模式，可选值：file、db。file 用于单点模式，db用于ha模式，当使用db存储模式，需要修改配置中store配置节点的数据库配置，同时在数据库中初始化[global_table、branch_table和 
+lock_table](https://github.com/seata/seata/blob/1.5.0/script/server/db/mysql.sql)   
+-h 用于解决seata-server和业务侧跨网络问题，其配置的host值直接显示到注册中心的服务可用地址host，当跨网络时这里需要配置为公网IP或NATIP，若都在同一局域网则无需配置   
+-e 用于解决多环境配置中心隔离问题   
+采用如下命令来启动 Seata Server
 
 ```$shell
 sh seata-server.sh -p 8091 -m file
 ```
 
-**Note** If you modified the endpoint and the registry uses the default file type, remember the file you need in each of the sample projects. In the conf`file, modify the value of grouplist (when registry.type or config.type in registry.conf is file, the file name in the internal file node is read; if type is not file, the data is read directly from the registry configuration center for the corresponding metadata of the configuration type), Nacos is recommended as the configuration registry.
+**注意** 如果你修改了endpoint且注册中心使用默认file类型，那么记得需要在各个示例工程中的 `file.conf` 文件中，修改 grouplist 的值(当registry.conf 中registry.type 或 config.type 为file 时会读取内部的file节点中的文件名，若type不为file将直接从配置类型的对应元数据的注册配置中心读取数据)，推荐大家使用 nacos 作为配置注册中心。
 
-## Run Example
 
-Run the Main functions of the three applications `account-server`, `order-service`, `storage-service` and `business-service`, respectively, to start the example.
+## 运行示例
 
-After launching the example, the following URLs are accessed through the GET method of HTTP to validate scenarios where other services are invoked through RestTemplate and FeignClient in `business-service` respectively.
+分别运行 `account-server`、`order-service`、`storage-service` 和 `business-service` 这三个应用的 Main 函数，启动示例。
+
+启动示例后，通过 HTTP 的 GET 方法访问如下 URL，可以分别验证在 `business-service` 中 通过 RestTemplate 和 FeignClient 调用其他服务的场景。
 
 ```$xslt
 http://127.0.0.1:18081/seata/feign
@@ -220,32 +217,33 @@ http://127.0.0.1:18081/seata/rest
 
 ```
 
-## How do I verify the success of a distributed transaction?
+## 如何验证分布式事务成功？
 
-### Whether Xid information was successfully transmitted
+### Xid 信息是否成功传递
 
-In the Controller of the three services `account-server`, `order-service` and `storage-service`, the first logic executed is to output the Xid information in the RootContext. If you see that the correct Xid information is output, it changes every time and the Xid of all services in the same call is consistent. This indicates that the transfer and restore of Seata's Xid are normal.
-### Consistency of data in database
+在 `account-server`、`order-service` 和 `storage-service` 三个 服务的 Controller 中，第一个执行的逻辑都是输出 RootContext 中的 Xid 信息，如果看到都输出了正确的 Xid 信息，即每次都发生变化，且同一次调用中所有服务的 Xid 都一致。则表明 Seata 的 Xid 的传递和还原是正常的。
 
-In this example, we simulate a scenario where a user purchases goods, StorageService is responsible for deducting the inventory quantity, OrderService is responsible for saving the order, and AccountService is responsible for deducting the user account balance.
+### 数据库中数据是否一致
 
-To demonstrate the sample, we used Random in OrderService and AcountService. NextBoolean () randomly throws exceptions, simulating a scenario in which exceptions occur randomly when a service is invoked.
+在本示例中，我们模拟了一个用户购买货物的场景，StorageService 负责扣减库存数量，OrderService 负责保存订单，AccountService 负责扣减用户账户余额。
 
-If the distributed transaction is valid, then the following equation should be true
+为了演示样例，我们在 OrderService 和 AccountService 中 使用 Random.nextBoolean() 的方式来随机抛出异常,模拟了在服务调用时随机发生异常的场景。
+
+如果分布式事务生效的话， 那么以下等式应该成立
 
 
-- User Original Amount (1000) = User Existing Amount + Goods Unit Price (2) * Order Quantity * Goods Quantity per Order (2)
+- 用户原始金额(1000) = 用户现存的金额  +  货物单价 (2) * 订单数量 * 每单的货物数量(2)
 
-- Initial Quantity of Goods (100) = Existing Quantity of Goods + Order Quantity * Quantity of Goods per Order (2)
+- 货物的初始数量(100) = 货物的现存数量 + 订单数量 * 每单的货物数量(2)
 
-## Support points for Spring Cloud
+## 对 Spring Cloud 支持点
 
-- Service providers that provide services through Spring MVC can automatically restore the Seata context when they receive HTTP requests with Seata information in the header.
+- 通过 Spring MVC 提供服务的服务提供者，在收到 header 中含有 Seata 信息的 HTTP 请求时，可以自动还原 Seata 上下文。
 
-- Support for automatic delivery of Seata context when service callers invoke through RestTemplate.
+- 支持服务调用者通过 RestTemplate 调用时，自动传递 Seata 上下文。
 
-- Supports automatic delivery of the Seata context when a service caller invokes through a FeignClient.
+- 支持服务调用者通过 FeignClient 调用时，自动传递 Seata 上下文。
 
-- Supports scenarios where both SeataClient and Hystrix are used.
+- 支持 SeataClient 和 Hystrix 同时使用的场景。
 
-- Supports scenarios used by both SeataClient and entinel.
+- 支持 SeataClient 和 Sentinel 同时使用的场景。
