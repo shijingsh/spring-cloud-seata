@@ -22,3 +22,4 @@ logback-test.xml
 /Users
 *.log
 /*.iml
+/sessionStore/

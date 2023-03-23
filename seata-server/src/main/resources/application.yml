@@ -1,7 +1,7 @@
 base:
   config:
     mdb:
-      hostname: 127.0.0.1 #your mysql server ip address
+      hostname: 192.168.29.11 #your mysql server ip address
       dbname: seata #your database name for test
       port: 3306 #your mysql server listening port
       username: 'root' #your mysql server username

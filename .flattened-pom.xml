@@ -13,7 +13,6 @@
     <module>order-service</module>
     <module>storage-service</module>
     <module>account-service</module>
-    <module>seata-server</module>
   </modules>
   <properties>
     <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
