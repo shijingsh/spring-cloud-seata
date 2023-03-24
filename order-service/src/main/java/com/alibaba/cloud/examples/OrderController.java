@@ -69,12 +69,14 @@ public class OrderController {
 
 	@PostMapping(value = "/order", produces = "application/json")
 	public String order(String userId, String commodityCode, int orderCount) {
+		LOGGER.info("=================================================");
 		LOGGER.info("Order Service Begin ... xid: " + RootContext.getXID());
-
+		//计算价格
 		int orderMoney = calculate(commodityCode, orderCount);
-
+		//扣减余额
 		invokerAccountService(orderMoney);
 
+		//生成订单
 		final Order order = new Order();
 		order.userId = userId;
 		order.commodityCode = commodityCode;
@@ -102,11 +104,11 @@ public class OrderController {
 		order.id = keyHolder.getKey().longValue();
 
 		if (random.nextBoolean()) {
-			throw new RuntimeException("this is a mock Exception");
+			//throw new RuntimeException("this is a mock Exception");
 		}
 
 		LOGGER.info("Order Service End ... Created " + order);
-
+		LOGGER.info("=================================================");
 		if (result == 1) {
 			return SUCCESS;
 		}

@@ -45,11 +45,13 @@ public class StorageController {
 
 	@GetMapping(value = "/storage/{commodityCode}/{count}", produces = "application/json")
 	public String echo(@PathVariable String commodityCode, @PathVariable int count) {
+		LOGGER.info("=================================================");
 		LOGGER.info("Storage Service Begin ... xid: " + RootContext.getXID());
 		int result = jdbcTemplate.update(
 				"update storage_tbl set count = count - ? where commodity_code = ?",
 				new Object[] { count, commodityCode });
 		LOGGER.info("Storage Service End ... ");
+		LOGGER.info("=================================================");
 		if (result == 1) {
 			return SUCCESS;
 		}

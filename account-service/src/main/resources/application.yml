@@ -45,6 +45,8 @@ seata:
       dataId: "seata.properties"
       username: 'nacos'
       password: 'nacos'
+      group: SEATA_GROUP
+      #namespace: test-seata
   registry:
     type: nacos
     nacos:
